@@ -1,0 +1,37 @@
+name: "DBT_FIVETRAN_TRANSFORMATION"
+version: '1.0.0'
+
+config-version: 2
+
+# This setting configures which "profile" dbt uses for this project.
+profile: "DBT_FIVETRAN_TRANSFORMATION"
+
+# configure standard paths
+test-paths:  ['tests']
+macro-paths: ['macros']
+
+quoting:
+  database:   false
+  schema:     false
+  identifier: false
+
+models:
+  DBT_FIVETRAN_OPTIMIZATION_REPO:
+    +copy_grants:  true
+    +transient:    true
+    +materialized: view # default to views
+
+    +post-hook: 
+      - 'GRANT SELECT ON {{ this }} TO ROLE {{ target.database }}_READ'
+
+    cloud_usage:
+      +schema: CLOUD_USAGE
+      +tags: ['cloud_usage']
+      analytics:
+        materialized: table
+
+    google_analytics:
+      +schema: GOOGLE_ANALYTICS
+      +tags: ['google_analytics']
+      analytics:
+        materialized: table
